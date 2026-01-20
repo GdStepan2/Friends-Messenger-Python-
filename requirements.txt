@@ -1,0 +1,3 @@
+sqlalchemy
+websockets
+pyside6

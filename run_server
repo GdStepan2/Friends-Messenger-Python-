@@ -1,0 +1,21 @@
+async def run_server(host: str, port: int) -> None:
+    """
+    Start websocket server.
+
+    websockets 10/11-style handlers often call: handler(ws, path)
+    websockets 12+ (and some asyncio.server variants) call: handler(connection)
+
+    This wrapper supports BOTH by accepting *args and taking first arg as connection.
+    """
+    engine = get_engine()
+    ensure_schema(engine)
+
+    async def _handler(*args):
+        # new style: args == (connection,)
+        # old style: args == (ws, path)
+        ws = args[0]
+        await handler(ws, engine)
+
+    print(f"Server listening on ws://{host}:{port}")
+    async with websockets.serve(_handler, host, port, max_size=2_000_000):
+        await asyncio.Future()  # run forever
